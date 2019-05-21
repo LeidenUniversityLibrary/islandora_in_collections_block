@@ -1,0 +1,85 @@
+<?php
+
+/**
+ * @file
+ * islandora_in_collections_block.module
+ *
+ *
+ *  Copyright 2019 Leiden University Library
+ *
+ *  This file is part of islandora_in_collections_block.
+ *
+ *  islandora_in_collections_block is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function islandora_in_collections_block_theme($existing, $type, $theme, $path) {
+  return array(
+    'islandora_in_collections' => array(
+      'template' => 'theme/islandora-in-collections',
+      'variables' => array('collections' => array()),
+    ),
+  );
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function islandora_in_collections_block_block_info() {
+
+  $blocks['islandora_in_collections'] = array(
+    'info' => t('Islandora In Collections'),
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function islandora_in_collections_block_block_view($delta = '') {
+  // If there is no object there are no blocks.
+  $object = menu_get_object('islandora_object', 2);
+  if (!$object) {
+    return FALSE;
+  }
+
+  // We should be on the "view" callback.
+  $menu_item = menu_get_item();
+  if ($menu_item['path'] != 'islandora/object/%/view' && $menu_item['path'] != 'islandora/object/%') {
+    return FALSE;
+  }
+
+  $block = array();
+  switch ($delta) {
+    case 'islandora_in_collections':
+      module_load_include('inc', 'islandora', 'includes/utilities');
+      $collections = islandora_get_parents_from_rels_ext($object);
+      if (count($collections) == 0) {
+        return FALSE;
+      }
+      $block['subject'] = t('In Collections');
+      $block['content'] = array(
+        '#theme' => 'islandora_in_collections',
+        '#collections' => $collections,
+      );
+      break;
+  }
+  return $block;
+}
+

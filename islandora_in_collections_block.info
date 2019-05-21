@@ -1,0 +1,8 @@
+name = "Islandora In Collections Block"
+description = "Provides a block showing the collections an Islandora object is in."
+package = Islandora Blocks
+version = "7.x-1.x-dev"
+core = 7.x
+dependencies[] = islandora
+dependencies[] = islandora_basic_collection
+
